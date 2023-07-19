@@ -474,6 +474,9 @@ class PostProcessHOITriplet(nn.Module):
         obj_labels = F.softmax(out_obj_logits, -1)[..., :-1].max(-1)[1]
         sub_labels = F.softmax(out_sub_logits, -1)[..., :-1].max(-1)[1]
         hoi_labels = F.softmax(out_hoi_logits, -1)[..., :-1].max(-1)[1]
+        
+        total_scores = sub_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0]
+        ranked_orders = np.argsort(-total_scores.cpu(), 0)
 
         img_h, img_w = target_sizes.unbind(1)
         scale_fct = torch.stack([img_w, img_h, img_w, img_h], dim=1).to(hoi_scores.device)
@@ -493,6 +496,7 @@ class PostProcessHOITriplet(nn.Module):
             for k in range(sl.shape[0]):
                 trip.append([int(sl[k]), int(ol[k]), int(hoi_l[k])])
             trip = torch.tensor(trip)
+            trip = trip[ranked_orders, :]
             results.append({'labels': l.to('cpu'), 'boxes': b.to('cpu'), 'triplet': trip})
 
             ids = torch.arange(b.shape[0])
