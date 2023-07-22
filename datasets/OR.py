@@ -58,6 +58,10 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         obj_boxes = torch.cat([target['boxes'][target['rel_annotations'][:, 1]]])
         target['sub_boxes'] = sub_boxes
         target['obj_boxes'] = obj_boxes
+        target['gt_triplet'] = torch.cat([target["sub_labels"].unsqueeze(-1), target["obj_labels"].unsqueeze(-1), torch.cat([target["rel_annotations"][:, 2]]).unsqueeze(-1)], dim=1)
+
+
+
         return img, target
 
 
@@ -101,7 +105,6 @@ class ConvertCocoPolysToMask(object):
 
         classes = [obj["category_id"] for obj in anno]
         classes = torch.tensor(classes, dtype=torch.int64)
-        # classes = one_hot(classes, num_classes=11)
 
         if self.return_masks:
             segmentations = [obj["segmentation"] for obj in anno]

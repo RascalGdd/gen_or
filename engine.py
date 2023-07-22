@@ -108,7 +108,7 @@ def evaluate_hoi(dataset_file, model, postprocessors, data_loader,
         or_gt_img = []
         or_pred_img = []
         gt_pair_collection = []
-        gt_labels_sop = gts[iter]['rel_annotations']
+        gt_labels_sop = gts[iter]['gt_triplet']
         det_labels_sop_top = preds[iter]['triplet']
         for index in range(gt_labels_sop.shape[0]):
             found = False
