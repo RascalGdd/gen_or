@@ -343,7 +343,9 @@ class SetCriterionHOI(nn.Module):
         else:
             loss_sub_bbox = F.l1_loss(src_sub_boxes, target_sub_boxes, reduction='none')
             loss_obj_bbox = F.l1_loss(src_obj_boxes, target_obj_boxes, reduction='none')
-            losses['loss_sub_bbox'] = loss_sub_bbox.sum() / num_interactions
+            # losses['loss_sub_bbox'] = loss_sub_bbox.sum() / num_interactions
+            losses['loss_sub_bbox'] = (loss_sub_bbox * exist_obj_boxes.unsqueeze(1)).sum() / (
+                    exist_obj_boxes.sum() + 1e-4)
             losses['loss_obj_bbox'] = (loss_obj_bbox * exist_obj_boxes.unsqueeze(1)).sum() / (
                     exist_obj_boxes.sum() + 1e-4)
             loss_sub_giou = 1 - torch.diag(generalized_box_iou(box_cxcywh_to_xyxy(src_sub_boxes),
