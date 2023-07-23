@@ -343,11 +343,12 @@ class SetCriterionHOI(nn.Module):
         else:
             loss_sub_bbox = F.l1_loss(src_sub_boxes, target_sub_boxes, reduction='none')
             loss_obj_bbox = F.l1_loss(src_obj_boxes, target_obj_boxes, reduction='none')
-            # losses['loss_sub_bbox'] = loss_sub_bbox.sum() / num_interactions
-            losses['loss_sub_bbox'] = (loss_sub_bbox * exist_obj_boxes.unsqueeze(1)).sum() / (
-                    exist_obj_boxes.sum() + 1e-4)
+            losses['loss_sub_bbox'] = loss_sub_bbox.sum() / num_interactions
+            #losses['loss_sub_bbox'] = (loss_sub_bbox * exist_obj_boxes.unsqueeze(1)).sum() / (
+            #        exist_obj_boxes.sum() + 1e-4)
             losses['loss_obj_bbox'] = (loss_obj_bbox * exist_obj_boxes.unsqueeze(1)).sum() / (
                     exist_obj_boxes.sum() + 1e-4)
+            #losses['loss_obj_bbox'] = loss_obj_bbox.sum() / num_interactions
             loss_sub_giou = 1 - torch.diag(generalized_box_iou(box_cxcywh_to_xyxy(src_sub_boxes),
                                                                box_cxcywh_to_xyxy(target_sub_boxes)))
             loss_obj_giou = 1 - torch.diag(generalized_box_iou(box_cxcywh_to_xyxy(src_obj_boxes),
@@ -477,7 +478,7 @@ class PostProcessHOITriplet(nn.Module):
         sub_labels = F.softmax(out_sub_logits, -1)[..., :-1].max(-1)[1]
         hoi_labels = F.softmax(out_hoi_logits, -1)[..., :-1].max(-1)[1]
         
-        total_scores = sub_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0]
+        total_scores = sub_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0]
         ranked_orders = np.argsort(-total_scores.cpu(), 0)
 
         img_h, img_w = target_sizes.unbind(1)
