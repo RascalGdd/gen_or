@@ -478,7 +478,7 @@ class PostProcessHOITriplet(nn.Module):
         sub_labels = F.softmax(out_sub_logits, -1)[..., :-1].max(-1)[1]
         hoi_labels = F.softmax(out_hoi_logits, -1)[..., :-1].max(-1)[1]
         
-        total_scores = sub_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0]
+        total_scores = sub_scores[0, :, :-1].max(-1)[0] * obj_scores[0, :, :-1].max(-1)[0] * hoi_scores[0, :, :-1].max(-1)[0]
         ranked_orders = np.argsort(-total_scores.cpu(), 0)
 
         img_h, img_w = target_sizes.unbind(1)
